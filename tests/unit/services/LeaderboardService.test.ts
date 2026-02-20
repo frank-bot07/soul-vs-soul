@@ -18,7 +18,7 @@ describe('LeaderboardService', () => {
     db.prepare("INSERT INTO agents (id, display_id, name, personality, system_prompt, avatar_seed) VALUES ('a3', 'd_a3', 'Agent3', 'test', 'test', 'z')").run();
 
     const queries = new LeaderboardQueries(db);
-    service = new LeaderboardService(queries);
+    service = new LeaderboardService(queries, db);
   });
 
   afterEach(() => {

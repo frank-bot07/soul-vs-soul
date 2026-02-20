@@ -1,4 +1,5 @@
 import type Database from 'better-sqlite3';
+// Startup-only sync I/O for migrations — acceptable per architecture doc
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

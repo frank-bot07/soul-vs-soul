@@ -13,11 +13,11 @@ describe('Leaderboard API', () => {
 
     // Seed some leaderboard data
     const db = getDb();
-    db.prepare("INSERT INTO agents (id, display_id, name, personality, system_prompt, avatar_seed) VALUES ('a1', 'd_a1', 'TopAgent', 'test', 'test', 'x')").run();
-    db.prepare("INSERT INTO agents (id, display_id, name, personality, system_prompt, avatar_seed) VALUES ('a2', 'd_a2', 'MidAgent', 'test', 'test', 'y')").run();
+    db.prepare("INSERT INTO agents (id, display_id, name, personality, system_prompt, avatar_seed) VALUES ('00000000-0000-4000-8000-000000000001', 'd_a1', 'TopAgent', 'test', 'test', 'x')").run();
+    db.prepare("INSERT INTO agents (id, display_id, name, personality, system_prompt, avatar_seed) VALUES ('00000000-0000-4000-8000-000000000002', 'd_a2', 'MidAgent', 'test', 'test', 'y')").run();
     const now = Math.floor(Date.now() / 1000);
-    db.prepare('INSERT INTO leaderboard (agent_id, total_games, total_wins, total_score, elo_rating, last_played_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)').run('a1', 10, 7, 500, 1200, now, now);
-    db.prepare('INSERT INTO leaderboard (agent_id, total_games, total_wins, total_score, elo_rating, last_played_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)').run('a2', 5, 2, 200, 950, now, now);
+    db.prepare('INSERT INTO leaderboard (agent_id, total_games, total_wins, total_score, elo_rating, last_played_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)').run('00000000-0000-4000-8000-000000000001', 10, 7, 500, 1200, now, now);
+    db.prepare('INSERT INTO leaderboard (agent_id, total_games, total_wins, total_score, elo_rating, last_played_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)').run('00000000-0000-4000-8000-000000000002', 5, 2, 200, 950, now, now);
   });
 
   afterEach(() => {
@@ -49,14 +49,14 @@ describe('Leaderboard API', () => {
   });
 
   it('GET /api/v1/leaderboard/:agentId returns agent stats', async () => {
-    const res = await request(app, 'GET', '/api/v1/leaderboard/a1');
+    const res = await request(app, 'GET', '/api/v1/leaderboard/00000000-0000-4000-8000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.elo_rating).toBe(1200);
     expect(res.body.total_games).toBe(10);
   });
 
   it('returns 404 for unknown agent', async () => {
-    const res = await request(app, 'GET', '/api/v1/leaderboard/nonexistent');
+    const res = await request(app, 'GET', '/api/v1/leaderboard/00000000-0000-4000-8000-ffffffffffff');
     expect(res.status).toBe(404);
   });
 });

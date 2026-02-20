@@ -161,7 +161,7 @@ export class GameEngine extends EventEmitter {
 
         this.emit('agent:response', {
           gameId: state.gameId,
-          agentId: agent.id,
+          agentId: agent.displayId,
           response,
           score: score.value,
         });
@@ -184,7 +184,7 @@ export class GameEngine extends EventEmitter {
 
       this.emit('elimination', {
         gameId: state.gameId,
-        agentId: lowest.id,
+        agentId: lowest.displayId,
         round: state.currentRound,
       });
     }

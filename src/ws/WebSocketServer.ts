@@ -2,6 +2,8 @@ import { WebSocketServer as WSServer, WebSocket } from 'ws';
 import type { Server as HttpServer, IncomingMessage } from 'node:http';
 import { logger } from '../logger.js';
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 interface ExtendedWebSocket extends WebSocket {
   isAlive: boolean;
   gameId?: string;
@@ -57,8 +59,8 @@ export class GameWebSocketServer {
     switch (msg.type) {
       case 'SUBSCRIBE': {
         const gameId = msg.gameId;
-        if (typeof gameId !== 'string' || gameId.length === 0) {
-          ws.send(JSON.stringify({ type: 'ERROR', data: { message: 'gameId required' } }));
+        if (typeof gameId !== 'string' || !UUID_RE.test(gameId)) {
+          ws.send(JSON.stringify({ type: 'ERROR', data: { message: 'Valid gameId (UUID) required' } }));
           return;
         }
         this.removeFromGame(ws);
@@ -77,7 +79,7 @@ export class GameWebSocketServer {
       }
       case 'RESYNC': {
         const gameId = ws.gameId ?? msg.gameId;
-        if (typeof gameId === 'string') {
+        if (typeof gameId === 'string' && UUID_RE.test(gameId)) {
           // If not subscribed yet, subscribe
           if (!ws.gameId) {
             ws.gameId = gameId;

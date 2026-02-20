@@ -41,8 +41,9 @@ export interface GameResponse {
   createdAt: string;
 }
 
-export function listAgents(): Promise<AgentResponse[]> {
-  return request<AgentResponse[]>('/agents');
+export async function listAgents(): Promise<AgentResponse[]> {
+  const resp = await request<{ agents: AgentResponse[] } | AgentResponse[]>('/agents');
+  return Array.isArray(resp) ? resp : resp.agents;
 }
 
 export function getAgent(id: string): Promise<AgentResponse> {

@@ -57,13 +57,13 @@ describe('WebSocket spectating integration', () => {
 
     // Subscribe
     const subMsg = waitForMessage(ws);
-    ws.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: 'test-game' }));
+    ws.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: '00000000-0000-4000-8000-000000000011' }));
     const sub = await subMsg;
     expect(sub['type']).toBe('SUBSCRIBED');
 
     // Receive broadcast
     const eventMsg = waitForMessage(ws);
-    server.wsServer.broadcast('test-game', 'CHALLENGE', {
+    server.wsServer.broadcast('00000000-0000-4000-8000-000000000011', 'CHALLENGE', {
       type: 'debate',
       description: 'Test challenge',
     });
@@ -72,7 +72,7 @@ describe('WebSocket spectating integration', () => {
 
     // Receive elimination
     const elimMsg = waitForMessage(ws);
-    server.wsServer.broadcast('test-game', 'ELIMINATION', {
+    server.wsServer.broadcast('00000000-0000-4000-8000-000000000011', 'ELIMINATION', {
       agentId: 'agent-1',
       round: 2,
     });
@@ -99,7 +99,7 @@ describe('WebSocket spectating integration', () => {
 
     // Subscribe first
     const subMsg = waitForMessage(ws);
-    ws.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: 'resync-game' }));
+    ws.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: '00000000-0000-4000-8000-000000000012' }));
     await subMsg;
 
     // Request resync
@@ -107,7 +107,7 @@ describe('WebSocket spectating integration', () => {
     ws.send(JSON.stringify({ type: 'RESYNC' }));
     const state = await resyncMsg;
 
-    expect(resyncGameId).toBe('resync-game');
+    expect(resyncGameId).toBe('00000000-0000-4000-8000-000000000012');
     expect(state['type']).toBe('FULL_STATE');
 
     ws.close();
@@ -121,15 +121,15 @@ describe('WebSocket spectating integration', () => {
 
     // Subscribe to game-a
     const subMsg = waitForMessage(ws);
-    ws.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: 'game-a' }));
+    ws.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: '00000000-0000-4000-8000-00000000000a' }));
     await subMsg;
 
     // Broadcast to game-b — should NOT arrive
-    server.wsServer.broadcast('game-b', 'ROUND_START', { round: 1 });
+    server.wsServer.broadcast('00000000-0000-4000-8000-00000000000b', 'ROUND_START', { round: 1 });
 
     // Broadcast to game-a — SHOULD arrive
     const eventMsg = waitForMessage(ws);
-    server.wsServer.broadcast('game-a', 'ROUND_START', { round: 1 });
+    server.wsServer.broadcast('00000000-0000-4000-8000-00000000000a', 'ROUND_START', { round: 1 });
     const event = await eventMsg;
     expect(event['type']).toBe('ROUND_START');
 
@@ -147,15 +147,15 @@ describe('WebSocket spectating integration', () => {
     // All subscribe to same game
     for (const ws of [ws1, ws2, ws3]) {
       const msg = waitForMessage(ws);
-      ws.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: 'multi-game' }));
+      ws.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: '00000000-0000-4000-8000-000000000013' }));
       await msg;
     }
 
-    expect(server.wsServer.getSpectatorCount('multi-game')).toBe(3);
+    expect(server.wsServer.getSpectatorCount('00000000-0000-4000-8000-000000000013')).toBe(3);
 
     // Broadcast
     const promises = [ws1, ws2, ws3].map((ws) => waitForMessage(ws));
-    server.wsServer.broadcast('multi-game', 'GAME_END', { winner: 'agent-x' });
+    server.wsServer.broadcast('00000000-0000-4000-8000-000000000013', 'GAME_END', { winner: 'agent-x' });
     const results = await Promise.all(promises);
 
     for (const r of results) {

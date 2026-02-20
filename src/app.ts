@@ -30,6 +30,8 @@ import { CreativeChallenge } from './engine/challenges/creative.js';
 import { TriviaChallenge } from './engine/challenges/trivia.js';
 import { AllianceChallenge } from './engine/challenges/alliance.js';
 import { getDb } from './db/index.js';
+import { sanitizeGameState } from './ws/sanitize.js';
+import { logger } from './logger.js';
 
 export function createApp(): express.Express {
   const app = express();
@@ -94,21 +96,52 @@ export function createApp(): express.Express {
     const agentService = new AgentService(agentQueries);
     const gameService = new GameService(gameQueries, agentQueries, engine);
     const replayService = new ReplayService(replayQueries);
-    const leaderboardService = new LeaderboardService(leaderboardQueries);
-    const authService = new AuthService(userQueries);
+    const leaderboardService = new LeaderboardService(leaderboardQueries, db);
+    const authService = new AuthService(userQueries, db);
 
     // Wire engine events to replay + leaderboard
+    // NOTE: agent:query is intentionally NOT recorded or broadcast (#6)
     engine.on('game:start', (data) => replayService.record(data.gameId, 'game:start', data));
     engine.on('round:start', (data) => replayService.record(data.gameId, 'round:start', data));
     engine.on('challenge:start', (data) => replayService.record(data.gameId, 'challenge:start', data));
-    engine.on('agent:response', (data) => replayService.record(data.gameId, 'agent:response', data));
-    engine.on('round:end', (data) => replayService.record(data.gameId, 'round:end', data));
+    engine.on('agent:response', (data) => {
+      // Sanitize: strip raw LLM response before recording (#3, #10)
+      const sanitized = { ...data, response: '[redacted]' };
+      replayService.record(data.gameId, 'agent:response', sanitized);
+    });
+    engine.on('round:end', (data) => {
+      // Strip raw responses from round results (#10)
+      const sanitized = {
+        ...data,
+        results: data.results.map(({ response: _response, ...rest }) => rest),
+      };
+      replayService.record(data.gameId, 'round:end', sanitized);
+    });
     engine.on('elimination', (data) => replayService.record(data.gameId, 'elimination', data));
     engine.on('game:end', (data) => {
       replayService.record(data.gameId, 'game:end', data);
       replayService.cleanup(data.gameId);
       leaderboardService.updateFromGame(data);
     });
+
+    // Export sanitizeGameState for WebSocket broadcast wiring
+    app.set('sanitizeGameState', sanitizeGameState);
+
+    // #25 — Periodic session cleanup
+    const SESSION_CLEANUP_INTERVAL = 60 * 60 * 1000; // 1 hour
+    const cleanupSessions = () => {
+      try {
+        const now = Math.floor(Date.now() / 1000);
+        const result = db.prepare('DELETE FROM sessions WHERE expires_at < ?').run(now);
+        if (result.changes > 0) {
+          logger.info({ deleted: result.changes }, 'Cleaned up expired sessions');
+        }
+      } catch (err) {
+        logger.error({ err }, 'Session cleanup failed');
+      }
+    };
+    cleanupSessions(); // Run on startup
+    setInterval(cleanupSessions, SESSION_CLEANUP_INTERVAL);
 
     agentRoutes = createAgentRoutes(agentService);
     gameRoutes = createGameRoutes(gameService);
@@ -118,6 +151,7 @@ export function createApp(): express.Express {
     authRoutes = createAuthRoutes(authService);
   }
 
+  // #16 — Use standard middleware delegation instead of fragile URL rewriting
   // Auth routes
   app.use((req, res, next) => {
     ensureInit();

@@ -56,12 +56,12 @@ describe('GameWebSocketServer', () => {
 
     const ws = await connectWs(server.port);
     const msgPromise = waitForMessage(ws);
-    ws.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: 'game-1' }));
+    ws.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: '00000000-0000-4000-8000-000000000001' }));
     const msg = await msgPromise;
 
     expect(msg['type']).toBe('SUBSCRIBED');
-    expect((msg['data'] as Record<string, unknown>)['gameId']).toBe('game-1');
-    expect(server.wsServer.getSpectatorCount('game-1')).toBe(1);
+    expect((msg['data'] as Record<string, unknown>)['gameId']).toBe('00000000-0000-4000-8000-000000000001');
+    expect(server.wsServer.getSpectatorCount('00000000-0000-4000-8000-000000000001')).toBe(1);
 
     ws.close();
   });
@@ -74,7 +74,7 @@ describe('GameWebSocketServer', () => {
 
     // Subscribe first
     let msgPromise = waitForMessage(ws);
-    ws.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: 'game-2' }));
+    ws.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: '00000000-0000-4000-8000-000000000002' }));
     await msgPromise;
 
     // Unsubscribe
@@ -82,7 +82,7 @@ describe('GameWebSocketServer', () => {
     ws.send(JSON.stringify({ type: 'UNSUBSCRIBE' }));
     await msgPromise;
 
-    expect(server.wsServer.getSpectatorCount('game-2')).toBe(0);
+    expect(server.wsServer.getSpectatorCount('00000000-0000-4000-8000-000000000002')).toBe(0);
     ws.close();
   });
 
@@ -95,17 +95,17 @@ describe('GameWebSocketServer', () => {
 
     // Subscribe both to same game
     let msg1 = waitForMessage(ws1);
-    ws1.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: 'game-3' }));
+    ws1.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: '00000000-0000-4000-8000-000000000003' }));
     await msg1;
 
     let msg2 = waitForMessage(ws2);
-    ws2.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: 'game-3' }));
+    ws2.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: '00000000-0000-4000-8000-000000000003' }));
     await msg2;
 
     // Broadcast
     msg1 = waitForMessage(ws1);
     msg2 = waitForMessage(ws2);
-    server.wsServer.broadcast('game-3', 'ROUND_START', { round: 1 });
+    server.wsServer.broadcast('00000000-0000-4000-8000-000000000003', 'ROUND_START', { round: 1 });
 
     const [r1, r2] = await Promise.all([msg1, msg2]);
     expect(r1['type']).toBe('ROUND_START');
@@ -121,15 +121,15 @@ describe('GameWebSocketServer', () => {
 
     const ws = await connectWs(server.port);
     const msgPromise = waitForMessage(ws);
-    ws.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: 'game-4' }));
+    ws.send(JSON.stringify({ type: 'SUBSCRIBE', gameId: '00000000-0000-4000-8000-000000000004' }));
     await msgPromise;
 
-    expect(server.wsServer.getSpectatorCount('game-4')).toBe(1);
+    expect(server.wsServer.getSpectatorCount('00000000-0000-4000-8000-000000000004')).toBe(1);
 
     ws.close();
     // Give time for close handler
     await new Promise((r) => setTimeout(r, 100));
-    expect(server.wsServer.getSpectatorCount('game-4')).toBe(0);
+    expect(server.wsServer.getSpectatorCount('00000000-0000-4000-8000-000000000004')).toBe(0);
   });
 
   it('rejects invalid messages', async () => {

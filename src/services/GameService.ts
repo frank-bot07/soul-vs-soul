@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { GameQueries } from '../db/queries/games.js';
 import { AgentQueries } from '../db/queries/agents.js';
 import { GameEngine } from '../engine/GameEngine.js';
-import { ConflictError, NotFoundError, ValidationError } from '../shared/errors.js';
+import { AuthError, ConflictError, NotFoundError, ValidationError } from '../shared/errors.js';
 import type { Agent, GameConfig } from '../engine/types.js';
 
 export class GameService {
@@ -65,10 +65,11 @@ export class GameService {
     return { id, status: 'pending', mode: input.mode, createdAt: new Date().toISOString() };
   }
 
-  async startGame(gameId: string): Promise<void> {
+  async startGame(gameId: string, sessionId: string): Promise<void> {
     await this.withLock(gameId, async () => {
       const game = this.gameQueries.get(gameId);
       if (!game) throw new NotFoundError('Game');
+      if (game.creator_session !== sessionId) throw new AuthError('Only the game creator can start the game');
       if (game.status !== 'pending') throw new ConflictError('Game already started');
 
       this.gameQueries.updateStatus(gameId, 'running');

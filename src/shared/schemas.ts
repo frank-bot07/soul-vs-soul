@@ -26,6 +26,8 @@ export const AgentIdSchema = z.string().uuid('Invalid agent ID format');
 
 export const GameIdSchema = z.string().uuid('Invalid game ID format');
 
+export const UUIDParamSchema = z.string().uuid('Invalid ID format');
+
 export const FileUploadSchema = z.object({
   originalname: z.string(),
   mimetype: z.enum(['text/markdown', 'text/plain'], {

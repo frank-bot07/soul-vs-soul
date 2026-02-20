@@ -59,8 +59,10 @@ export class AgentService {
 
   delete(id: string, sessionId: string) {
     this.validateUUID(id);
+    const agent = this.queries.getPublic(id);
+    if (!agent) throw new NotFoundError('Agent');
+    if (agent.is_preset) throw new AuthError('Cannot delete preset agents');
     const creator = this.queries.getCreatorSession(id);
-    if (!creator) throw new NotFoundError('Agent');
     if (creator !== sessionId) throw new AuthError('Not authorized to delete this agent');
     return this.queries.delete(id);
   }

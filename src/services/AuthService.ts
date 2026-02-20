@@ -1,17 +1,39 @@
 import crypto from 'node:crypto';
+import type Database from 'better-sqlite3';
 import { UserQueries } from '../db/queries/users.js';
 import { ValidationError, NotFoundError } from '../shared/errors.js';
-
-interface MagicLinkToken {
-  email: string;
-  token: string;
-  expiresAt: number;
-}
+import { logger } from '../logger.js';
 
 export class AuthService {
-  private magicLinkTokens = new Map<string, MagicLinkToken>();
+  constructor(
+    private userQueries: UserQueries,
+    private db: Database.Database,
+  ) {
+    // Ensure magic_link_tokens table exists
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS magic_link_tokens (
+        token TEXT PRIMARY KEY,
+        email TEXT NOT NULL,
+        expires_at INTEGER NOT NULL
+      )
+    `);
 
-  constructor(private userQueries: UserQueries) {}
+    // Periodic cleanup of expired tokens
+    this.cleanupExpiredTokens();
+    setInterval(() => this.cleanupExpiredTokens(), 15 * 60 * 1000);
+  }
+
+  private cleanupExpiredTokens(): void {
+    try {
+      const now = Math.floor(Date.now() / 1000);
+      const result = this.db.prepare('DELETE FROM magic_link_tokens WHERE expires_at < ?').run(now);
+      if (result.changes > 0) {
+        logger.info({ deleted: result.changes }, 'Cleaned up expired magic link tokens');
+      }
+    } catch (err) {
+      logger.error({ err }, 'Magic link token cleanup failed');
+    }
+  }
 
   /** Request a magic link. Returns the token (in production, this would be emailed). */
   requestMagicLink(email: string): { token: string; message: string } {
@@ -20,29 +42,32 @@ export class AuthService {
     }
 
     const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes
+    const expiresAt = Math.floor(Date.now() / 1000) + 15 * 60; // 15 minutes
 
-    this.magicLinkTokens.set(token, { email, token, expiresAt });
-
-    // Stub: In production, send email here
-    // await sendEmail(email, `Your magic link: https://soulvssoul.com/auth/verify/${token}`);
+    this.db
+      .prepare('INSERT INTO magic_link_tokens (token, email, expires_at) VALUES (?, ?, ?)')
+      .run(token, email, expiresAt);
 
     return { token, message: 'Magic link sent (stubbed — token returned for development)' };
   }
 
   /** Verify a magic link token and create/get user */
   verifyMagicLink(token: string, sessionId: string): { userId: string; displayName: string; email: string } {
-    const entry = this.magicLinkTokens.get(token);
+    const now = Math.floor(Date.now() / 1000);
+    const entry = this.db
+      .prepare('SELECT token, email, expires_at FROM magic_link_tokens WHERE token = ?')
+      .get(token) as { token: string; email: string; expires_at: number } | undefined;
+
     if (!entry) {
       throw new ValidationError('Invalid or expired token');
     }
 
-    if (Date.now() > entry.expiresAt) {
-      this.magicLinkTokens.delete(token);
+    if (now > entry.expires_at) {
+      this.db.prepare('DELETE FROM magic_link_tokens WHERE token = ?').run(token);
       throw new ValidationError('Token expired');
     }
 
-    this.magicLinkTokens.delete(token);
+    this.db.prepare('DELETE FROM magic_link_tokens WHERE token = ?').run(token);
 
     // Find or create user
     let user = this.userQueries.getByEmail(entry.email);

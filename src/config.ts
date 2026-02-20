@@ -40,6 +40,14 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     process.exit(1);
   }
   const cfg = result.data;
+
+  // #7 — Reject insecure session secret in production
+  const DEV_SECRET = 'dev-secret-change-me-in-production-please-32chars';
+  if (cfg.NODE_ENV === 'production' && (!cfg.SESSION_SECRET || cfg.SESSION_SECRET === DEV_SECRET)) {
+    console.error('❌ SESSION_SECRET must be set to a secure value in production');
+    process.exit(1);
+  }
+
   // Apply legacy fallbacks
   if (!cfg.LLM_API_KEY && cfg.OPENAI_API_KEY) {
     (cfg as Record<string, unknown>).LLM_API_KEY = cfg.OPENAI_API_KEY;

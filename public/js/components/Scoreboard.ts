@@ -10,7 +10,7 @@ export function Scoreboard(container: HTMLElement): void {
     const agents = state.gameState?.agents ?? [];
     const sorted = [...agents].sort((a, b) => b.score - a.score);
 
-    const board = h('aside', { class: `scoreboard${collapsed ? ' collapsed' : ''}`, 'aria-label': 'Scoreboard' });
+    const board = h('aside', { class: `scoreboard${collapsed ? ' collapsed' : ''}`, 'aria-label': 'Scoreboard', 'aria-live': 'polite' });
 
     const toggleBtn = h('button', {
       class: 'scoreboard-toggle',
@@ -50,6 +50,9 @@ export function Scoreboard(container: HTMLElement): void {
     render(container, board);
   }
 
-  store.subscribe(renderBoard);
+  const unsubscribe = store.subscribe(renderBoard);
   renderBoard();
+
+  // Return cleanup function
+  return unsubscribe;
 }

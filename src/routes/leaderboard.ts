@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authenticate } from '../middleware/auth.js';
+import { validateUUIDParams } from '../middleware/validateParams.js';
 import type { LeaderboardService } from '../services/LeaderboardService.js';
 import { NotFoundError } from '../shared/errors.js';
 
@@ -20,7 +21,7 @@ export function createLeaderboardRoutes(leaderboardService: LeaderboardService):
   });
 
   // GET /api/v1/leaderboard/:agentId
-  router.get('/api/v1/leaderboard/:agentId', authenticate, (req, res, next) => {
+  router.get('/api/v1/leaderboard/:agentId', authenticate, validateUUIDParams('agentId'), (req, res, next) => {
     try {
       const agentId = req.params['agentId'] as string;
       const stats = leaderboardService.getAgentStats(agentId);

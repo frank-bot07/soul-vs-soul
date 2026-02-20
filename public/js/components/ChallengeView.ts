@@ -22,7 +22,7 @@ const TYPE_ICONS: Record<string, string> = {
 export function ChallengeView(container: HTMLElement, challenge: ChallengeState): void {
   const children: Node[] = [];
 
-  const display = h('article', { class: 'challenge-display' },
+  const display = h('article', { class: 'challenge-display', 'aria-live': 'polite' },
     h('div', { class: 'challenge-type' },
       `${TYPE_ICONS[challenge.type] ?? '❓'} ${challenge.type}`,
     ),

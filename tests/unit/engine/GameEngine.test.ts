@@ -43,8 +43,9 @@ describe('GameEngine', () => {
 
     expect(queries).toContain('a');
     expect(queries).toContain('b');
-    expect(responses).toContain('a');
-    expect(responses).toContain('b');
+    // agent:response now emits displayId instead of internal id
+    expect(responses).toContain('d_a');
+    expect(responses).toContain('d_b');
   });
 
   it('emits elimination in elimination mode with >2 agents', async () => {

@@ -1,26 +1,23 @@
-FROM node:22-alpine AS builder
+# Build stage
+FROM node:22-slim AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
-RUN npm prune --production
 
-FROM node:22-slim
+# Production stage
+FROM node:22-slim AS production
+RUN groupadd -r appuser && useradd -r -g appuser -d /app appuser
 WORKDIR /app
-RUN groupadd -r svs && useradd -r -g svs svs
-COPY --from=builder --chown=svs:svs /app/dist ./dist
-COPY --from=builder --chown=svs:svs /app/public ./public
-COPY --from=builder --chown=svs:svs /app/node_modules ./node_modules
-COPY --from=builder --chown=svs:svs /app/package.json ./
-COPY --from=builder --chown=svs:svs /app/src/db/migrations ./dist/db/migrations
-
-RUN mkdir -p /data && chown svs:svs /data
-VOLUME /data
-
-USER svs
+COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/public ./public
+RUN mkdir -p data && chown -R appuser:appuser /app
+USER appuser
 ENV NODE_ENV=production
-ENV DATABASE_PATH=/data/soulvssoul.db
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=3s CMD node -e "fetch('http://localhost:3000/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "fetch('http://localhost:3000/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
 CMD ["node", "dist/index.js"]

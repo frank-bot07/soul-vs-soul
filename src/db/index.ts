@@ -18,7 +18,7 @@ export function getDb(): Database.Database {
 export function initDb(dbPath?: string): Database.Database {
   const resolvedPath = dbPath ?? config.DATABASE_PATH;
 
-  // Ensure directory exists
+  // Ensure directory exists (startup-only, sync is acceptable here)
   const dir = path.dirname(resolvedPath);
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
