@@ -1,18 +1,9 @@
 import type { Request, Response, NextFunction } from 'express';
 import { logger } from '../logger.js';
 import { config } from '../config.js';
+import { AppError } from '../shared/errors.js';
 
-export class AppError extends Error {
-  constructor(
-    message: string,
-    public statusCode: number,
-    public code: string,
-    public isOperational = true,
-  ) {
-    super(message);
-    this.name = 'AppError';
-  }
-}
+export { AppError };
 
 export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction): void {
   if (err instanceof AppError && err.isOperational) {
