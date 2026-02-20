@@ -76,3 +76,14 @@ export function startGame(id: string): Promise<GameResponse> {
     method: 'POST',
   });
 }
+
+export interface GameResultsResponse {
+  gameId: string;
+  status: string;
+  winner: string | null;
+  agents: Array<{ agent_id: string; final_score: number | null; placement: number | null }>;
+}
+
+export function getGameResults(id: string): Promise<GameResultsResponse> {
+  return request<GameResultsResponse>(`/games/${encodeURIComponent(id)}/results`);
+}

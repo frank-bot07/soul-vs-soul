@@ -28,7 +28,7 @@ export function createApp(): express.Express {
   app.use(securityHeaders);
   app.use(
     cors({
-      origin: config.ALLOWED_ORIGINS.split(',').map((o) => o.trim()),
+      origin: config.CORS_ORIGINS.split(',').map((o) => o.trim()),
       methods: ['GET', 'POST', 'PUT', 'DELETE'],
       allowedHeaders: ['Content-Type', 'Authorization'],
       credentials: true,

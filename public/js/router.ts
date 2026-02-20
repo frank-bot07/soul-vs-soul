@@ -9,7 +9,6 @@ export class Router {
   private routes: Route[] = [];
 
   add(pattern: string, handler: (params: Record<string, string>) => void): void {
-    // Convert :param patterns to regex
     const regexStr = pattern.replace(/:(\w+)/g, '(?<$1>[^/]+)');
     this.routes.push({ pattern: new RegExp(`^${regexStr}$`), handler });
   }
@@ -17,6 +16,10 @@ export class Router {
   start(): void {
     window.addEventListener('hashchange', () => this.resolve());
     this.resolve();
+  }
+
+  navigate(hash: string): void {
+    location.hash = hash;
   }
 
   resolve(): void {

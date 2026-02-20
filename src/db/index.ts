@@ -2,6 +2,7 @@ import Database from 'better-sqlite3';
 import { config } from '../config.js';
 import { logger } from '../logger.js';
 import { runMigrations } from './migrator.js';
+import { seedPresets } from './seeds/presets.js';
 import path from 'node:path';
 import { existsSync, mkdirSync } from 'node:fs';
 
@@ -34,6 +35,9 @@ export function initDb(dbPath?: string): Database.Database {
 
   // Run migrations
   runMigrations(db);
+
+  // Seed preset agents
+  seedPresets(db);
 
   return db;
 }

@@ -1,0 +1,25 @@
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 3rem;
+}
+
+.error-title {
+  color: var(--text-primary);
+  font-size: var(--text-xl);
+  margin: 0;
+}
+
+.error-message {
+  color: var(--accent-lose);
+  font-size: var(--text-base);
+  max-width: 400px;
+}
