@@ -6,8 +6,8 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "esbuild src/index.ts --bundle --platform=node --target=node22 --outdir=dist --format=esm --packages=external && npm run build:client",
-    "build:client": "esbuild public/js/main.ts --bundle --outfile=public/js/bundle.js --format=esm --target=es2022 --minify",
+    "build": "npx esbuild src/index.ts --bundle --platform=node --target=node22 --outdir=dist --format=esm --packages=external && npm run build:client",
+    "build:client": "npx esbuild public/js/main.ts --bundle --outfile=public/js/bundle.js --format=esm --target=es2022 --minify",
     "start": "node dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
