@@ -1,0 +1,94 @@
+.game-arena {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.arena-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.arena-header .round-indicator {
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+.arena-header .spectator-count {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+/* Challenge display */
+.challenge-display {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+}
+.challenge-type {
+  font-size: var(--text-sm);
+  color: var(--accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-2);
+}
+.challenge-description {
+  font-size: var(--text-lg);
+  line-height: 1.6;
+}
+
+/* Response cards */
+.response-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.response-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  animation: slideIn var(--transition-normal) ease-out;
+}
+.response-card .agent-name {
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.response-card .response-text {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.response-card .response-score {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--accent-gold);
+  font-weight: 600;
+}
+
+/* Elimination animation */
+.response-card.eliminated {
+  animation: fadeSlideOut 500ms ease-out forwards;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeSlideOut {
+  to { opacity: 0.3; transform: translateX(-20px); filter: grayscale(1); }
+}
+
+/* Game end */
+.game-end {
+  text-align: center;
+  padding: var(--space-8);
+}
+.game-end .winner-name {
+  font-size: var(--text-3xl);
+  color: var(--accent-gold);
+  margin-bottom: var(--space-4);
+}

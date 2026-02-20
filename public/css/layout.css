@@ -1,0 +1,120 @@
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--space-4);
+  z-index: 1000;
+  padding: var(--space-2) var(--space-4);
+  background: var(--accent-primary);
+  color: white;
+  border-radius: var(--radius-md);
+}
+.skip-link:focus {
+  top: var(--space-2);
+}
+
+/* Nav */
+nav {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: var(--space-3) var(--space-4);
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.nav-logo {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.nav-links {
+  display: flex;
+  gap: var(--space-4);
+  margin-left: auto;
+}
+.nav-links a {
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+  min-height: var(--touch-min);
+  display: flex;
+  align-items: center;
+}
+.nav-links a:hover,
+.nav-links a:focus-visible {
+  color: var(--text-primary);
+}
+.connection-status {
+  font-size: var(--text-sm);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+}
+.connection-status.connected {
+  color: var(--accent-win);
+}
+.connection-status.disconnected {
+  color: var(--accent-lose);
+}
+
+/* Main content */
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-4);
+}
+
+/* Focus rings */
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Button base */
+.btn {
+  min-height: var(--touch-min);
+  min-width: var(--touch-min);
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-base);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+.btn-primary {
+  background: var(--accent-primary);
+  color: white;
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-primary-hover);
+  box-shadow: var(--shadow-glow);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Grid utilities */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
+@media (min-width: 640px) {
+  .grid-2-3 { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1024px) {
+  .grid-2-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Game layout: arena + sidebar */
+.game-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+@media (min-width: 768px) {
+  .game-layout {
+    grid-template-columns: 1fr 280px;
+  }
+}

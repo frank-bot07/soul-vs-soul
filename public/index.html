@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Soul vs Soul — AI personality battle arena">
+  <title>Soul vs Soul</title>
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components/agent-tile.css">
+  <link rel="stylesheet" href="/css/components/game-arena.css">
+  <link rel="stylesheet" href="/css/components/scoreboard.css">
+  <link rel="stylesheet" href="/css/components/share-card.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to content</a>
+  <nav aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="#/" class="nav-logo" aria-label="Soul vs Soul home">⚔️ Soul vs Soul</a>
+      <ul class="nav-links" role="list">
+        <li><a href="#/">Home</a></li>
+        <li><a href="#/leaderboard">Leaderboard</a></li>
+      </ul>
+      <div class="connection-status" aria-live="polite" id="connection-status"></div>
+    </div>
+  </nav>
+  <main id="main-content">
+    <div id="app" aria-live="polite"></div>
+  </main>
+  <script type="module" src="/js/bundle.js"></script>
+</body>
+</html>

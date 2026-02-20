@@ -1,0 +1,73 @@
+.share-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  text-align: center;
+  margin-top: var(--space-4);
+}
+.share-card h3 {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-xl);
+}
+.share-card .share-text {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-4);
+  line-height: 1.6;
+}
+.share-card .btn-share {
+  background: #1da1f2;
+  color: white;
+  min-height: var(--touch-min);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: background var(--transition-fast);
+}
+.share-card .btn-share:hover {
+  background: #1a91da;
+}
+
+/* Upload form */
+.upload-form {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  margin-top: var(--space-4);
+}
+.drop-zone {
+  border: 2px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-8);
+  text-align: center;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  min-height: var(--touch-min);
+}
+.drop-zone.dragover {
+  border-color: var(--accent-primary);
+  background: rgba(108, 92, 231, 0.1);
+}
+.upload-form input[type="text"] {
+  width: 100%;
+  padding: var(--space-3);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  margin-top: var(--space-3);
+  min-height: var(--touch-min);
+}
+.upload-form .preview {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  max-height: 150px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
