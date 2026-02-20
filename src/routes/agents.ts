@@ -21,12 +21,17 @@ export function createAgentRoutes(agentService: AgentService): Router {
     }
   });
 
-  // GET /api/v1/agents — list agents
+  // GET /api/v1/agents — list agents with search, sort, filter
   router.get('/api/v1/agents', authenticate, (req, res, next) => {
     try {
       const limit = Math.min(Number(req.query['limit']) || 50, 100);
       const offset = Number(req.query['offset']) || 0;
-      const agents = agentService.list(limit, offset);
+      const search = (req.query['search'] as string) || undefined;
+      const sort = (req.query['sort'] as string) || 'newest';
+      const presetParam = req.query['preset'] as string | undefined;
+      const preset = presetParam === 'true' ? true : presetParam === 'false' ? false : undefined;
+
+      const agents = agentService.listFiltered({ limit, offset, search, sort, preset });
       res.json({ agents });
     } catch (err) {
       next(err);

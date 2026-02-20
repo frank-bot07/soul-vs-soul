@@ -39,6 +39,10 @@ export class AgentService {
     return this.queries.listPublic(limit, offset);
   }
 
+  listFiltered(opts: { limit?: number; offset?: number; search?: string; sort?: string; preset?: boolean }) {
+    return this.queries.listFiltered(opts);
+  }
+
   get(id: string) {
     this.validateUUID(id);
     const agent = this.queries.getPublic(id);

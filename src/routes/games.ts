@@ -28,6 +28,20 @@ export function createGameRoutes(gameService: GameService): Router {
     }
   });
 
+  // GET /api/v1/games — list games with filters
+  router.get('/api/v1/games', authenticate, (req, res, next) => {
+    try {
+      const limit = Math.min(Number(req.query['limit']) || 20, 100);
+      const offset = Number(req.query['offset']) || 0;
+      const status = req.query['status'] as string | undefined;
+      const sort = (req.query['sort'] as string) || 'newest';
+      const games = gameService.listGames({ limit, offset, status, sort });
+      res.json({ games });
+    } catch (err) {
+      next(err);
+    }
+  });
+
   // GET /api/v1/games/:id — get game status
   router.get('/api/v1/games/:id', authenticate, (req, res, next) => {
     try {

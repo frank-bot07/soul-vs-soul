@@ -55,6 +55,33 @@ export class AgentQueries {
     return result.changes > 0;
   }
 
+  listFiltered(opts: { limit?: number; offset?: number; search?: string; sort?: string; preset?: boolean }): PublicAgentRow[] {
+    const limit = opts.limit ?? 50;
+    const offset = opts.offset ?? 0;
+    const params: unknown[] = [];
+    const conditions: string[] = [];
+
+    if (opts.search) {
+      conditions.push('name LIKE ?');
+      params.push(`%${opts.search}%`);
+    }
+    if (opts.preset === true) {
+      conditions.push('is_preset = 1');
+    } else if (opts.preset === false) {
+      conditions.push('is_preset = 0');
+    }
+
+    const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    let orderBy = 'ORDER BY created_at DESC';
+    if (opts.sort === 'popular') orderBy = 'ORDER BY play_count DESC';
+    else if (opts.sort === 'winrate') orderBy = 'ORDER BY CASE WHEN play_count > 0 THEN CAST(win_count AS REAL) / play_count ELSE 0 END DESC';
+    else if (opts.sort === 'newest') orderBy = 'ORDER BY created_at DESC';
+
+    params.push(limit, offset);
+    return this.db.prepare(`SELECT ${PUBLIC_FIELDS} FROM agents ${where} ${orderBy} LIMIT ? OFFSET ?`).all(...params) as PublicAgentRow[];
+  }
+
   getCreatorSession(id: string): string | null {
     const row = this.db.prepare('SELECT creator_session FROM agents WHERE id = ?').get(id) as { creator_session: string | null } | undefined;
     return row?.creator_session ?? null;

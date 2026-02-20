@@ -78,4 +78,22 @@ export class GameQueries {
   listRecent(limit = 20): GameRow[] {
     return this.db.prepare('SELECT * FROM games ORDER BY created_at DESC LIMIT ?').all(limit) as GameRow[];
   }
+
+  listFiltered(opts: { limit?: number; offset?: number; status?: string; sort?: string }): GameRow[] {
+    const limit = opts.limit ?? 20;
+    const offset = opts.offset ?? 0;
+    const params: unknown[] = [];
+    const conditions: string[] = [];
+
+    if (opts.status && ['pending', 'running', 'completed', 'cancelled'].includes(opts.status)) {
+      conditions.push('status = ?');
+      params.push(opts.status);
+    }
+
+    const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const orderBy = opts.sort === 'newest' || !opts.sort ? 'ORDER BY created_at DESC' : 'ORDER BY created_at DESC';
+
+    params.push(limit, offset);
+    return this.db.prepare(`SELECT * FROM games ${where} ${orderBy} LIMIT ? OFFSET ?`).all(...params) as GameRow[];
+  }
 }

@@ -4,6 +4,11 @@ import { store } from './state.js';
 import { LandingHero } from './components/LandingHero.js';
 import { AgentPicker } from './components/AgentPicker.js';
 import { GameArena } from './components/GameArena.js';
+import { ReplayPlayer } from './components/ReplayPlayer.js';
+import { Leaderboard } from './components/Leaderboard.js';
+import { UserProfile } from './components/UserProfile.js';
+import { AgentBrowser } from './components/AgentBrowser.js';
+import { GameLobby } from './components/GameLobby.js';
 import { LoadingState } from './components/LoadingState.js';
 import { ErrorState } from './components/ErrorState.js';
 import { h, render } from './dom.js';
@@ -32,7 +37,6 @@ router.add('/game/:id', (params) => {
 
   void api.getGame(id).then((game) => {
     if (game.status === 'completed') {
-      // Show results for completed game
       void api.getGameResults(id).then((results) => {
         const section = h('section', { class: 'game-results' },
           h('h1', {}, '🏆 Game Over'),
@@ -41,12 +45,13 @@ router.add('/game/:id', (params) => {
         if (results.winner) {
           section.append(h('p', { class: 'winner-name' }, `Winner: ${results.winner}`));
         }
+        const replayLink = h('a', { class: 'btn btn-primary', href: `#/replay/${id}` }, '📹 Watch Replay');
+        section.append(replayLink);
         render(app, section);
       }).catch((err: Error) => {
         ErrorState(app, err.message, () => router.resolve());
       });
     } else {
-      // Live game — join as spectator
       GameArena(app, id);
     }
   }).catch((err: Error) => {
@@ -54,13 +59,33 @@ router.add('/game/:id', (params) => {
   });
 });
 
+router.add('/replay/:id', (params) => {
+  const id = params['id'];
+  if (!id) return;
+  store.update({ route: `#/replay/${id}` });
+  ReplayPlayer(app, id);
+});
+
 router.add('/leaderboard', () => {
   store.update({ route: '#/leaderboard' });
-  const section = h('section', {},
-    h('h1', {}, '🏆 Leaderboard'),
-    h('p', {}, 'Coming soon…'),
-  );
-  render(app, section);
+  Leaderboard(app);
+});
+
+router.add('/profile/:id', (params) => {
+  const id = params['id'];
+  if (!id) return;
+  store.update({ route: `#/profile/${id}` });
+  UserProfile(app, id);
+});
+
+router.add('/agents', () => {
+  store.update({ route: '#/agents' });
+  AgentBrowser(app);
+});
+
+router.add('/lobby', () => {
+  store.update({ route: '#/lobby' });
+  GameLobby(app);
 });
 
 router.start();

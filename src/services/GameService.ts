@@ -105,6 +105,10 @@ export class GameService {
     return { ...game, agents };
   }
 
+  listGames(opts: { limit?: number; offset?: number; status?: string; sort?: string }) {
+    return this.gameQueries.listFiltered(opts);
+  }
+
   getResults(gameId: string) {
     const game = this.gameQueries.get(gameId);
     if (!game) throw new NotFoundError('Game');
