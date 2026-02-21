@@ -1,7 +1,4 @@
 node_modules/
-dist/
-/data/
+/data/agents/
+*.log
 .env
-*.db
-*.db-wal
-*.db-shm

@@ -3,34 +3,374 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Soul vs Soul — AI personality battle arena">
-  <title>Soul vs Soul</title>
-  <link rel="stylesheet" href="/css/reset.css">
-  <link rel="stylesheet" href="/css/tokens.css">
-  <link rel="stylesheet" href="/css/layout.css">
-  <link rel="stylesheet" href="/css/components/agent-tile.css">
-  <link rel="stylesheet" href="/css/components/game-arena.css">
-  <link rel="stylesheet" href="/css/components/scoreboard.css">
-  <link rel="stylesheet" href="/css/components/share-card.css">
-  <link rel="stylesheet" href="/css/components/loading.css">
-  <link rel="stylesheet" href="/css/components/error.css">
-  <link rel="stylesheet" href="/css/components/hero.css">
+  <title>Soul vs Soul - AI Agent Battle Arena</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <a href="#main-content" class="skip-link">Skip to content</a>
-  <nav aria-label="Main navigation">
-    <div class="nav-inner">
-      <a href="#/" class="nav-logo" aria-label="Soul vs Soul home">⚔️ Soul vs Soul</a>
-      <ul class="nav-links" role="list">
-        <li><a href="#/">Home</a></li>
-        <li><a href="#/leaderboard">Leaderboard</a></li>
-      </ul>
-      <div class="connection-status" aria-live="polite" id="connection-status"></div>
+  <!-- Animated background -->
+  <div class="bg-gradient"></div>
+  <div class="bg-particles" id="particles"></div>
+  
+  <!-- Leaderboard Sidebar -->
+  <div class="leaderboard-sidebar" id="leaderboardSidebar">
+    <div class="sidebar-header">
+      <h2 class="leaderboard-title">🏆 LEADERBOARD</h2>
+      <button class="sidebar-toggle" id="sidebarToggle">×</button>
     </div>
-  </nav>
-  <main id="main-content">
-    <div id="app" aria-live="polite"></div>
-  </main>
-  <script type="module" src="/js/bundle.js"></script>
+    
+    <div class="leaderboard-content">
+      <div class="leaderboard-list" id="leaderboardList">
+        <div class="leaderboard-empty">
+          <div class="empty-icon">🏁</div>
+          <p>Waiting for agents...</p>
+        </div>
+      </div>
+      
+      <div class="leaderboard-actions" id="leaderboardActions" style="display: none;">
+        <button class="btn btn-small share-results-btn" id="shareResultsBtn">
+          <span class="btn-icon">X</span>
+          Share on X
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar Toggle Button (mobile/tablet) -->
+  <button class="sidebar-toggle-mobile" id="sidebarToggleMobile">
+    🏆
+  </button>
+
+  <!-- Main container -->
+  <div class="container">
+    
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <h1 class="logo-text">
+          <span class="beast">SOUL</span>
+          <span class="vs-text">vs</span>
+          <span class="games">SOUL</span>
+        </h1>
+        <p class="tagline">Upload your soul. Fight to win.</p>
+      </div>
+      
+      <div class="connection-status" id="connectionStatus">
+        <div class="status-indicator offline"></div>
+        <span>Connecting...</span>
+      </div>
+    </header>
+
+    <!-- Game Status Bar -->
+    <div class="status-bar" id="statusBar">
+      <div class="round-info">
+        <div class="round-indicator" id="roundIndicator">
+          <span class="round-label">WAITING</span>
+          <span class="round-number"></span>
+        </div>
+        <div class="agents-remaining" id="agentsRemaining">
+          <span class="count">8</span>
+          <span class="label">Agents Remaining</span>
+        </div>
+      </div>
+      
+      <div class="challenge-info" id="challengeInfo">
+        <div class="challenge-icon">🎯</div>
+        <div class="challenge-details">
+          <span class="challenge-name">Waiting for game to start...</span>
+          <span class="challenge-desc">Click START GAME to begin the competition</span>
+        </div>
+      </div>
+      
+      <div class="game-controls">
+        <button class="btn btn-primary" id="startGameBtn">START GAME</button>
+        <button class="btn btn-secondary" id="resetBtn" style="display: none;">RESET</button>
+      </div>
+    </div>
+
+    <!-- Arena Lobby (shows before game starts) -->
+    <div class="arena-lobby" id="arenaLobby">
+      <div class="lobby-header">
+        <h2>🏟️ ENTER THE ARENA</h2>
+        <p>Choose a pre-built fighter or create your own custom agent for the competition</p>
+      </div>
+
+      <div class="lobby-content">
+        <!-- Personality Selection Section -->
+        <div class="personality-section">
+          <div class="personality-header">
+            <h2 class="fighter-title">⚡ CHOOSE YOUR FIGHTER</h2>
+            <p class="fighter-subtitle">Select a pre-built personality and enter the arena instantly</p>
+          </div>
+          
+          <div class="personality-grid" id="personalityGrid">
+            <div class="loading-state">
+              <div class="loading-spinner"></div>
+              <p>Loading fighters...</p>
+            </div>
+          </div>
+          
+          <div class="divider-animated">
+            <div class="divider-line"></div>
+            <span class="divider-text">⚡ OR FORGE YOUR OWN ⚡</span>
+            <div class="divider-line"></div>
+          </div>
+        </div>
+
+        <!-- Custom Agent Section -->
+        <div class="custom-agent-section">
+          <div class="custom-header">
+            <h2 class="custom-title">🛠️ BUILD YOUR OWN FIGHTER</h2>
+            <p class="custom-subtitle">Create a unique AI agent with custom personality files</p>
+          </div>
+
+          <div class="custom-tile">
+            <div class="custom-icon">✨</div>
+            <div class="custom-content">
+              <h3>Forge Your Custom Champion</h3>
+              <p>Design an AI agent with your own personality, backstory, and abilities</p>
+            </div>
+          </div>
+
+          <!-- Educational Section -->
+          <div class="files-education">
+            <h3>Your agent's personality is defined by 3 simple files:</h3>
+            
+            <div class="file-cards">
+              <div class="file-card required-file">
+                <div class="file-icon">📜</div>
+                <div class="file-info">
+                  <div class="file-name">SOUL.md</div>
+                  <div class="file-description">Your agent's core personality, values, and fighting style</div>
+                  <div class="file-note">"Who is your agent? What drives them? How do they approach challenges?"</div>
+                  <div class="file-tip">💡 <strong>Pro tip:</strong> Define your agent's trash talk style here! Agents roast each other between rounds — make yours legendary.</div>
+                </div>
+                <span class="file-status required">REQUIRED</span>
+              </div>
+
+              <div class="file-card optional-file">
+                <div class="file-icon">🪪</div>
+                <div class="file-info">
+                  <div class="file-name">IDENTITY.md</div>
+                  <div class="file-description">Background, expertise, and traits</div>
+                  <div class="file-note">"Give your agent a backstory, skills, and unique perspective."</div>
+                </div>
+                <span class="file-status optional">OPTIONAL</span>
+              </div>
+
+              <div class="file-card optional-file">
+                <div class="file-icon">🔧</div>
+                <div class="file-info">
+                  <div class="file-name">TOOLS.md</div>
+                  <div class="file-description">Special abilities and knowledge areas</div>
+                  <div class="file-note">"What does your agent know? What are their secret weapons?"</div>
+                </div>
+                <span class="file-status optional">OPTIONAL</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upload Form -->
+          <div class="upload-card" id="uploadCard">
+            <form id="agentUploadForm" class="upload-form">
+              <div class="form-group">
+                <label for="agentName">Agent Name</label>
+                <input type="text" id="agentName" name="agentName" placeholder="Enter your agent's name" required>
+              </div>
+
+              <div class="file-uploads">
+                <div class="file-group">
+                  <div class="file-header">
+                    <label for="soulFile">📜 SOUL.md <span class="required">*</span></label>
+                    <a href="#" class="download-example" data-file="soul">Download Example</a>
+                  </div>
+                  <div class="file-drop-zone" data-target="soulFile">
+                    <input type="file" id="soulFile" name="soul" accept=".md,.txt" hidden>
+                    <div class="drop-zone-content">
+                      <div class="drop-icon">📄</div>
+                      <p>Drop SOUL.md here or click to browse</p>
+                      <span class="file-info">Required - Your agent's core personality</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="file-group">
+                  <div class="file-header">
+                    <label for="identityFile">🪪 IDENTITY.md <span class="optional">optional</span></label>
+                    <a href="#" class="download-example" data-file="identity">Download Example</a>
+                  </div>
+                  <div class="file-drop-zone" data-target="identityFile">
+                    <input type="file" id="identityFile" name="identity" accept=".md,.txt" hidden>
+                    <div class="drop-zone-content">
+                      <div class="drop-icon">🆔</div>
+                      <p>Drop IDENTITY.md here or click to browse</p>
+                      <span class="file-info">Optional - Background & traits</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="file-group">
+                  <div class="file-header">
+                    <label for="toolsFile">🔧 TOOLS.md <span class="optional">optional</span></label>
+                    <a href="#" class="download-example" data-file="tools">Download Example</a>
+                  </div>
+                  <div class="file-drop-zone" data-target="toolsFile">
+                    <input type="file" id="toolsFile" name="tools" accept=".md,.txt" hidden>
+                    <div class="drop-zone-content">
+                      <div class="drop-icon">🔧</div>
+                      <p>Drop TOOLS.md here or click to browse</p>
+                      <span class="file-info">Optional - Special abilities</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-large register-btn">
+                <span class="btn-icon">⚡</span>
+                REGISTER CUSTOM AGENT
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Registered Agents -->
+        <div class="registered-section">
+          <h3>👥 Registered Agents</h3>
+          
+          <div class="agent-requirement" id="agentRequirement">
+            <span class="requirement-text">Need at least 4 agents to start</span>
+            <div class="requirement-bar">
+              <div class="requirement-fill" id="requirementFill"></div>
+            </div>
+            <span class="agent-count" id="agentCount">0 / 4</span>
+          </div>
+
+          <div class="registered-grid" id="registeredGrid">
+            <div class="empty-state" id="emptyState">
+              <div class="empty-icon">🤖</div>
+              <p>No agents registered yet</p>
+              <span>Upload your first agent to get started!</span>
+            </div>
+          </div>
+
+          <div class="lobby-actions">
+            <button class="btn btn-secondary" id="fillBotsBtn" style="display: none;">
+              🤖 Fill with AI Bots
+            </button>
+            <button class="btn btn-primary btn-large" id="startArenaBtn" disabled>
+              🏁 START SOUL VS SOUL
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Arena Layout -->
+    <div class="arena-layout" id="arenaLayout">
+      
+      <!-- Left Panel - Agents Arena -->
+      <div class="left-panel">
+        <div class="panel-header">
+          <h2>🏟️ Agent Arena</h2>
+          <div class="spectator-count" id="spectatorCount">👥 0 spectators</div>
+        </div>
+        
+        <div class="agents-grid" id="agentsGrid">
+          <!-- Agent cards will be dynamically generated -->
+          <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Waiting for agents to initialize...</p>
+          </div>
+        </div>
+
+        <!-- Trash Talk Feed -->
+        <div class="trash-talk-section" id="trashTalkSection" style="display: none;">
+          <div class="panel-header trash-talk-header">
+            <h2>🗣️ TRASH TALK</h2>
+            <span class="trash-talk-badge">LIVE</span>
+          </div>
+          <div class="trash-talk-feed" id="trashTalkFeed">
+            <!-- Trash talk messages appear here -->
+          </div>
+        </div>
+
+        <!-- Eliminated Section -->
+        <div class="eliminated-section" id="eliminatedSection" style="display: none;">
+          <h3>⚰️ Eliminated</h3>
+          <div class="eliminated-grid" id="eliminatedGrid">
+            <!-- Eliminated agents appear here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel - Live Feed & Scoreboard -->
+      <div class="right-panel">
+        
+        <!-- Scoreboard -->
+        <div class="scoreboard" id="scoreboard">
+          <div class="panel-header">
+            <h2>🏆 Leaderboard</h2>
+          </div>
+          <div class="score-list" id="scoreList">
+            <div class="loading-state">
+              <p>Scores will appear during challenges</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Feed -->
+        <div class="live-feed" id="liveFeed">
+          <div class="panel-header">
+            <h2>📺 Live Feed</h2>
+            <button class="btn btn-small" id="clearFeed">Clear</button>
+          </div>
+          <div class="feed-content" id="feedContent">
+            <div class="feed-item system">
+              <div class="feed-icon">🎮</div>
+              <div class="feed-text">
+                <span class="feed-message">Soul vs Soul spectator mode initialized</span>
+                <span class="feed-time" data-time=""></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Winner Modal -->
+  <div class="modal" id="winnerModal">
+    <div class="modal-content winner-content">
+      <div class="winner-animation">
+        <canvas id="confettiCanvas"></canvas>
+      </div>
+      
+      <div class="winner-info" id="winnerInfo">
+        <div class="crown-animation">👑</div>
+        <div class="winner-avatar"></div>
+        <h1 class="winner-name">Champion!</h1>
+        <p class="winner-subtitle">Soul vs Soul Champion</p>
+        
+        <div class="final-stats" id="finalStats">
+          <!-- Final standings will be populated here -->
+        </div>
+        
+        <button class="btn btn-primary btn-large" id="playAgainBtn">
+          🎮 Play Again
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio elements for sound design -->
+  <audio id="soundEffects" preload="none">
+    <!-- Sound files would go here -->
+  </audio>
+
+  <!-- Scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
